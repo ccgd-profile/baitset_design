@@ -8,7 +8,7 @@ import TargetDesigner.utils as utils
 
 args = sys.argv
 
-PARSER = argparse.ArgumentParser(description='Program to extract exon/intron regions for target capture baitset designs.', usage'%(prog)s [options]', add_help=True)
+PARSER = argparse.ArgumentParser(description='Program to extract exon/intron regions for target capture baitset designs.', usage='%(prog)s [options]', add_help=True)
 PARSER.add_argument('geneList', metavar='genes', type=str, help='A comma delimited list of gene names from which to identify exon/intron regions. Note that these gene name should correspond to what exists in the annotation files.')
 PARSER.add_argument('-o', '--output_dir', dest='outputDir', default='', help='Output directory to store output files. [default: %(default)s]')
 PARSER.add_argument('-v', '--ensembl_ver', dest='ensemblVer', default='75', help='Ensembl annotation version to use. [default: %(default)s]')
