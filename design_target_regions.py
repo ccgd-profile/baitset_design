@@ -4,6 +4,7 @@ import os
 import sys
 import gzip
 import logging
+import argparse
 import TargetDesigner.utils as utils
 
 args = sys.argv
