@@ -11,12 +11,12 @@ class GTFFeature:
         self.end = int(end)
         self.strand = strand
         self.geneId = meta['gene_id']
-        self.exonId = None # meta['exon_id']
-        self.exonNum = None #meta['exon_number']
-        self.transcriptId = None #meta['transcript_id']
+        self.exonId = None
+        self.exonNum = None
+        self.transcriptId = None
         self.geneName = meta['gene_name']
-        self.transcriptName = None # meta['transcript_name']
-        self.transcriptBioType = None # meta['transcript_biotype']
+        self.transcriptName = None
+        self.transcriptBioType = None
         self.source = meta['gene_source']
         self.geneBioType = meta['gene_biotype']
         self.set_values()
@@ -56,9 +56,9 @@ class Gene:
                 for exonRegion in self.get_transcript_regions(transcript.transcriptId):
                     transcriptRegions.append(exonRegion)
                 tRegionsSorted = sorted(transcriptRegions, key=lambda x: x.start)
-                for i in range(len(tRegionsSorted)-1):
+                for i in range(len(tRegionsSorted) - 1):
                     intronStart = tRegionsSorted[i].end
-                    intronEnd = tRegionsSorted[i+1].start
+                    intronEnd = tRegionsSorted[i + 1].start
                     if tRegionsSorted[i].strand == '-':
                         tRegionsSorted[i].meta['exon_number'] = int(tRegionsSorted[i].meta['exon_number']) - 1
                     gf = GTFFeature("intron", tRegionsSorted[i].chrom, intronStart, intronEnd, tRegionsSorted[i].strand, tRegionsSorted[i].meta)
@@ -117,3 +117,42 @@ class GTF:
             value = value.rstrip('"').lstrip('"')
             metaD[key] = value
         return metaD
+
+    def get_feature_regions(outF, gene, regionType):
+        regionOverlaps = []
+        regions = gtf.genes[gene].get_regions(regionType)
+        regionsSorted = sorted(regions, key=lambda x: x.start)
+        for region in regionsSorted:
+            # print region.chrom, region.start, region.end, region.geneName, region.transcriptId, region.transcriptBioType, region.geneBioType
+            # Skip non-coding transcripts
+                    # if region.transcriptBioType != 'protein_coding':
+                        # continue
+            overlap = False
+            for regionOverlap in regionOverlaps:
+                if region.chrom == regionOverlap[0]:
+                    if int(region.start) >= regionOverlap[1] and int(region.start) <= regionOverlap[2]:
+                        # print region.chrom, region.start, region.end, 'overlaps with stored region', regionOverlap
+                        overlap = True
+                    elif int(region.end) <= regionOverlap[2] and int(region.end) >= regionOverlap[1]:
+                        # print region.chrom, region.start, region.end, 'overlaps with stored region', regionOverlap
+                        overlap = True
+                    if overlap:
+                        regionOverlap[3].append(region)
+                        regionOverlap[1] = min(int(region.start), regionOverlap[1])
+                        regionOverlap[2] = max(int(region.end), regionOverlap[2])
+            if not overlap:
+                # print 'No overlap, adding to list'
+                regionOverlaps.append([region.chrom, int(region.start), int(region.end), [region]])
+
+        regionIter = 1
+        for regionOverlap in regionOverlaps:
+            # print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
+            for region in regionOverlap[3]:
+                print '\t'.join([str(x) for x in [regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
+            regionIter += 1
+        regionIter = 1
+        for regionOverlap in regionOverlaps:
+            tList = ','.join([x.transcriptId for x in regionOverlap[3]])
+            exonNums = ','.join([str(x.exonNum) for x in regionOverlap[3]])
+            outF.write('\t'.join([str(x) for x in [regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), tList, exonNums]]))
+            regionIter += 1

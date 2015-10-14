@@ -6,6 +6,7 @@ import gzip
 import logging
 import argparse
 import TargetDesigner.utils as utils
+import TargetDesigner.transcript_annotation as transcript_annotation
 
 args = sys.argv
 
@@ -20,63 +21,36 @@ pArgs = PARSER.parse_args()
 
 print pArgs
 
-genes = pArgs.geneList
+genes = pArgs.geneList.split(',')
 features = pArgs.features
 ensemblVer = pArgs.ensemblVer
 
-sys.exit()
+outDir = os.curdir()
+if pArgs.outputDir is not None:
+    outDir = pArgs.outputDir
 
-# gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
-# if ensemblVer == '82':
-#     gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/82/primary-assembly/Homo_sapiens.GRCh37.82.chr.gtf.gz'
-# elif ensemblVer == '75':
-#     gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
+if not os.path.isdir(outDir):
+    os.mkdir(outDir)
 
-# for gene in geneNames:
-#     gene_gtf = gene + "_tmp.gtf"
-#     cmd = 'zcat %s | grep -w %s > %s' % (gtf_fn, gene, gene_gtf)
-#     print cmd
-#     os.system(cmd)
-#     gtf = GTF(gene_gtf, ensemblVer)
-#     get_feature_regions(gtf, gene, regionType)
+featureTypes = pArgs.features.split(',')
 
+gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
+if ensemblVer == '82':
+    gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/82/primary-assembly/Homo_sapiens.GRCh37.82.chr.gtf.gz'
+elif ensemblVer == '75':
+    gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
 
-# def get_feature_regions(gtf, gene, regionType):
-#     print gene
-#     regionOverlaps = []
-#     regions = gtf.genes[gene].get_regions(regionType)
-#     regionsSorted = sorted(regions, key=lambda x: x.start)
-#     for region in regionsSorted:
-#         # print region.chrom, region.start, region.end, region.geneName, region.transcriptId, region.transcriptBioType, region.geneBioType
-#         # Skip non-coding transcripts
-#     #            if region.transcriptBioType != 'protein_coding':
-#     #                continue
-#         overlap = False
-#         for regionOverlap in regionOverlaps:
-#             if region.chrom == regionOverlap[0]:
-#                 if int(region.start) >= regionOverlap[1] and int(region.start) <= regionOverlap[2]:
-#                     # print region.chrom, region.start, region.end, 'overlaps with stored region', regionOverlap
-#                     overlap = True
-#                 elif int(region.end) <= regionOverlap[2] and int(region.end) >= regionOverlap[1]:
-#                     # print region.chrom, region.start, region.end, 'overlaps with stored region', regionOverlap
-#                     overlap = True
-#                 if overlap:
-#                     regionOverlap[3].append(region)
-#                     regionOverlap[1] = min(int(region.start), regionOverlap[1])
-#                     regionOverlap[2] = max(int(region.end), regionOverlap[2])
-#         if not overlap:
-#             # print 'No overlap, adding to list'
-#             regionOverlaps.append([region.chrom, int(region.start), int(region.end), [region]])
-
-#     regionIter = 1
-#     for regionOverlap in regionOverlaps:
-# #        print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
-#         for region in regionOverlap[3]:
-#             print '\t'.join([str(x) for x in [regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
-#         regionIter += 1
-#     regionIter = 1
-#     for regionOverlap in regionOverlaps:
-#         tList = ','.join([x.transcriptId for x in regionOverlap[3]])
-#         exonNums = ','.join([str(x.exonNum) for x in regionOverlap[3]])
-#         print '\t'.join([str(x) for x in [regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), tList, exonNums]])
-#         regionIter += 1
+for gene in genes:
+    for featureType in featureTypes:
+        if featureType == 'exon' or featureType == 'intron':
+            continue
+        geneDir = os.path.join(outDir, gene)
+        geneOutFn = os.path.join(geneDir, gene + '_%s' % featureType)
+        geneOutF = open(geneOutFn, 'w')
+        if not os.path.isdir(geneDir):
+            os.mkdir(geneDir)
+        gene_gtf = os.path.join(geneDir, gene + "_tmp.gtf")
+        cmd = 'zcat %s | grep -w %s > %s' % (gtf_fn, gene, gene_gtf)
+        os.system(cmd)
+        gtf = transcript_annotation.GTF(gene_gtf, ensemblVer)
+        gtf.get_feature_regions(geneOutF, gene, regionType)
