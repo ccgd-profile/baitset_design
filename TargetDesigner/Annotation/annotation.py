@@ -1,6 +1,7 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
+
 class GTFFeature:
     def __init__(self, featureType, chrom, start, end, strand, meta):
         self.meta = meta

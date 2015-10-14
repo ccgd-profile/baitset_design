@@ -18,6 +18,8 @@ PARSER.add_argument('-t', '--transcripts', dest='selectTrxs', default=None, help
 
 pArgs = PARSER.parse_args()
 
+print pArgs
+
 genes = pArgs.geneList
 features = pArgs.features
 ensemblVer = pArgs.ensemblVer
