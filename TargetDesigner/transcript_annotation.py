@@ -118,9 +118,9 @@ class GTF:
             metaD[key] = value
         return metaD
 
-    def get_feature_regions(outF, gene, regionType):
+    def get_feature_regions(self, outF, gene, regionType):
         regionOverlaps = []
-        regions = gtf.genes[gene].get_regions(regionType)
+        regions = self.genes[gene].get_regions(regionType)
         regionsSorted = sorted(regions, key=lambda x: x.start)
         for region in regionsSorted:
             # print region.chrom, region.start, region.end, region.geneName, region.transcriptId, region.transcriptBioType, region.geneBioType
