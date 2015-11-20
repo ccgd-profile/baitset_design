@@ -6,7 +6,7 @@ def parse_input_gene_file(inputGeneFile):
     """
 
     geneDict = {}
-    for line in open(inputGene, 'r'):
+    for line in open(inputGeneFile, 'r'):
         line = line.strip()
         linesplit = line.split('\t')
         trxList = []
