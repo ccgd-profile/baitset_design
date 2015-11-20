@@ -32,7 +32,7 @@ inputGenes = utils.parse_input_gene_file(pArgs.genes)
 features = pArgs.features
 ensemblVer = pArgs.ensemblVer
 
-outDir = os.curdir()
+outDir = os.curdir
 if pArgs.outputDir is not None:
     outDir = pArgs.outputDir
 
