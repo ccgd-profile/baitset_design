@@ -8,10 +8,13 @@ import argparse
 import TargetDesigner.utils as utils
 import TargetDesigner.transcript_annotation as transcript_annotation
 
-args = sys.argv
+# ------------Setup parser -----------------------
 
-PARSER = argparse.ArgumentParser(description='Program to extract exon/intron regions for target capture baitset designs.', usage='%(prog)s [options]', add_help=True)
-PARSER.add_argument('geneList', metavar='genes', type=str, help='A comma delimited list of gene names from which to identify exon/intron regions. Note that these gene name should correspond to what exists in the annotation files.')
+PARSER = argparse.ArgumentParser(description='Program to extract exon/intron regions for target capture baitset designs.',
+                                 usage='%(prog)s [options]', add_help=True)
+PARSER.add_argument('-g', '--genes', help='A file containing a list of gene names from which to identify exon/intron regions. Note that \
+                     these gene name should correspond to what exists in the annotation files. A second column can be input with specific \
+                     transcript IDs for each gene.', required=True)
 PARSER.add_argument('-o', '--output_dir', dest='outputDir', default='', help='Output directory to store output files. [default: %(default)s]')
 PARSER.add_argument('-v', '--ensembl_ver', dest='ensemblVer', default='75', help='Ensembl annotation version to use. [default: %(default)s]')
 PARSER.add_argument('-f', '--features', dest='features', default='exon,intron', help='Features to target in the gene (exon, intron). [default: %(default)s]')
@@ -19,9 +22,13 @@ PARSER.add_argument('-t', '--transcripts', dest='selectTrxs', default=None, help
 
 pArgs = PARSER.parse_args()
 
-print pArgs
+# Parse the input file with gene names and possibly associated
+# transcript IDs for each gene. Store these in a dictionary with the
+# gene name as the key and the transcript list as the value.
+inputGenes = utils.parse_input_gene_file(pArgs.genes)
 
-genes = pArgs.geneList.split(',')
+# print pArgs
+# genes = pArgs.geneList.split(',')
 features = pArgs.features
 ensemblVer = pArgs.ensemblVer
 
@@ -34,23 +41,24 @@ if not os.path.isdir(outDir):
 
 featureTypes = pArgs.features.split(',')
 
-gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
+gtfFn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
 if ensemblVer == '82':
-    gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/82/primary-assembly/Homo_sapiens.GRCh37.82.chr.gtf.gz'
+    gtfFn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/82/primary-assembly/Homo_sapiens.GRCh37.82.chr.gtf.gz'
 elif ensemblVer == '75':
-    gtf_fn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
+    gtfFn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
 
-for gene in genes:
+for geneName in inputGenes.keys():
+    trxList = inputGenes[geneName]
     for featureType in featureTypes:
         if featureType == 'exon' or featureType == 'intron':
             continue
-        geneDir = os.path.join(outDir, gene)
-        geneOutFn = os.path.join(geneDir, gene + '_%s' % featureType)
-        geneOutF = open(geneOutFn, 'w')
+        geneDir = os.path.join(outDir, geneName)
+        geneOutFn = os.path.join(geneDir, geneName + '_%s' % featureType)
+        geneOutFile = open(geneOutFn, 'w')
         if not os.path.isdir(geneDir):
             os.mkdir(geneDir)
-        gene_gtf = os.path.join(geneDir, gene + "_tmp.gtf")
-        cmd = 'zcat %s | grep -w %s > %s' % (gtf_fn, gene, gene_gtf)
+        geneGTFFn = os.path.join(geneDir, geneName + "_tmp.gtf")
+        cmd = 'zcat %s | grep -w %s > %s' % (gtfFn, geneName, geneGTFFn)
         os.system(cmd)
-        gtf = transcript_annotation.GTF(gene_gtf, ensemblVer)
-        gtf.get_feature_regions(geneOutF, gene, regionType)
+        gtf = transcript_annotation.GTF(geneGTFFn, ensemblVer)
+        gtf.get_feature_regions(geneOutFile, geneName, regionType)

@@ -78,10 +78,11 @@ class Gene:
 
 
 class GTF:
-    def __init__(self, fn, ensemblVer):
+    def __init__(self, fn, ensemblVer, trxList):
         self.fn = fn
         self.ensVer = ensemblVer
         self.genes = {}
+        self.trxList = trxList
         self.parse()
 
     def parse(self):
@@ -107,7 +108,12 @@ class GTF:
             if gf.geneId not in self.genes:
                 self.genes[gf.geneName] = Gene(gf.geneId, gf)
         else:
-            self.genes[gf.geneName].add_feature(gf)
+            addFeature = True
+            if len(self.trxList) > 0:
+                if gf.transcriptId not in self.trxList:
+                    addFeature = False
+            if addFeature:
+                self.genes[gf.geneName].add_feature(gf)
 
     def parse_meta(self, metaValues):
         metaD = {}
@@ -118,9 +124,9 @@ class GTF:
             metaD[key] = value
         return metaD
 
-    def get_feature_regions(outF, gene, regionType):
+    def get_feature_regions(self, outF, gene, regionType):
         regionOverlaps = []
-        regions = gtf.genes[gene].get_regions(regionType)
+        regions = self.genes[gene].get_regions(regionType)
         regionsSorted = sorted(regions, key=lambda x: x.start)
         for region in regionsSorted:
             # print region.chrom, region.start, region.end, region.geneName, region.transcriptId, region.transcriptBioType, region.geneBioType
