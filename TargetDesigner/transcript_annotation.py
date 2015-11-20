@@ -45,6 +45,7 @@ class Gene:
 
     def get_regions(self, regionType):
         regions = None
+        print 'Gene.get_regions()', self.features
         if regionType in self.features:
             regions = self.features[regionType]
         elif regionType == 'intron':
