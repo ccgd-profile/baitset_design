@@ -50,15 +50,15 @@ elif ensemblVer == '75':
 for geneName in inputGenes.keys():
     trxList = inputGenes[geneName]
     for featureType in featureTypes:
-        if featureType == 'exon' or featureType == 'intron':
-            continue
+        # if featureType == 'exon' or featureType == 'intron':
+        #     continue
         geneDir = os.path.join(outDir, geneName)
-        geneOutFn = os.path.join(geneDir, geneName + '_%s' % featureType)
-        geneOutFile = open(geneOutFn, 'w')
         if not os.path.isdir(geneDir):
             os.mkdir(geneDir)
+        geneOutFn = os.path.join(geneDir, geneName + '_%s' % featureType)
+        geneOutFile = open(geneOutFn, 'w')
         geneGTFFn = os.path.join(geneDir, geneName + "_tmp.gtf")
         cmd = 'zcat %s | grep -w %s > %s' % (gtfFn, geneName, geneGTFFn)
         os.system(cmd)
         gtf = transcript_annotation.GTF(geneGTFFn, ensemblVer)
-        gtf.get_feature_regions(geneOutFile, geneName, regionType)
+        gtf.get_feature_regions(geneOutFile, geneName, featureType)
