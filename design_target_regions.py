@@ -60,5 +60,5 @@ for geneName in inputGenes.keys():
         geneGTFFn = os.path.join(geneDir, geneName + "_tmp.gtf")
         cmd = 'zcat %s | grep -w %s > %s' % (gtfFn, geneName, geneGTFFn)
         os.system(cmd)
-        gtf = transcript_annotation.GTF(geneGTFFn, ensemblVer)
+        gtf = transcript_annotation.GTF(geneGTFFn, ensemblVer, trxList)
         gtf.get_feature_regions(geneOutFile, geneName, featureType)
