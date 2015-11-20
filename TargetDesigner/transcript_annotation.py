@@ -78,10 +78,11 @@ class Gene:
 
 
 class GTF:
-    def __init__(self, fn, ensemblVer):
+    def __init__(self, fn, ensemblVer, trxList):
         self.fn = fn
         self.ensVer = ensemblVer
         self.genes = {}
+        self.trxList = trxList
         self.parse()
 
     def parse(self):
@@ -107,7 +108,12 @@ class GTF:
             if gf.geneId not in self.genes:
                 self.genes[gf.geneName] = Gene(gf.geneId, gf)
         else:
-            self.genes[gf.geneName].add_feature(gf)
+            addFeature = True
+            if len(self.trxList) > 0:
+                if gf.transcriptId not in self.trxList:
+                    addFeature = False
+            if addFeature:
+                self.genes[gf.geneName].add_feature(gf)
 
     def parse_meta(self, metaValues):
         metaD = {}
