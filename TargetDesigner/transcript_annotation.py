@@ -63,6 +63,8 @@ class Gene:
                         tRegionsSorted[i].meta['exon_number'] = int(tRegionsSorted[i].meta['exon_number']) - 1
                     gf = GTFFeature("intron", tRegionsSorted[i].chrom, intronStart, intronEnd, tRegionsSorted[i].strand, tRegionsSorted[i].meta)
                     regions.append(gf)
+        if regions is None:
+            print 'No regions found for', self.geneId
         return regions
 
     def get_transcripts(self):
