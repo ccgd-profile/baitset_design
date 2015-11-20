@@ -154,7 +154,7 @@ class GTF:
         for regionOverlap in regionOverlaps:
             # print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
             for region in regionOverlap[3]:
-                print '\t'.join([str(x) for x in [regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
+                print '\t'.join([str(x) for x in [region.geneName, regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
             regionIter += 1
         regionIter = 1
         for regionOverlap in regionOverlaps:
