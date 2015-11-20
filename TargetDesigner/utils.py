@@ -12,6 +12,6 @@ def parse_input_gene_file(inputGeneFile):
         trxList = []
         if len(linesplit) > 1:
             trxList = linesplit[1].split(',')
-        geneDict[linesplit[0]] = trxList
+        geneDict[linesplit[0].upper()] = trxList
 
     return geneDict

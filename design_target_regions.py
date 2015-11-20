@@ -47,6 +47,8 @@ if ensemblVer == '82':
 elif ensemblVer == '75':
     gtfFn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
 
+print len(inputGenes.keys()), "genes in input list"
+
 for geneName in inputGenes.keys():
     trxList = inputGenes[geneName]
     for featureType in featureTypes:
@@ -58,6 +60,7 @@ for geneName in inputGenes.keys():
         geneOutFn = os.path.join(geneDir, geneName + '_%s' % featureType)
         geneOutFile = open(geneOutFn, 'w')
         geneGTFFn = os.path.join(geneDir, geneName + "_tmp.gtf")
+        print 'Processing', geneName, featureType
         cmd = 'zcat %s | grep -w %s > %s' % (gtfFn, geneName, geneGTFFn)
         os.system(cmd)
         gtf = transcript_annotation.GTF(geneGTFFn, ensemblVer, trxList)
