@@ -117,6 +117,8 @@ class GTF:
                     addFeature = False
             if addFeature:
                 self.genes[gf.geneName].add_feature(gf)
+        print line
+        print self.genes
 
     def parse_meta(self, metaValues):
         metaD = {}
