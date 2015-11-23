@@ -1,12 +1,24 @@
 #! /usr/bin/python
+# -*- coding: utf-8 -*-
 
 import os
 import sys
 import gzip
+import argparse
+
+__author__ = "Ryan Abo"
+__email__ = "ryanp_abo@dfci.harvard.edu"
+
+'''
+A python script to extract exon or intron regions from the transcripts for a gene(s).
+
+The output is formatted to provide regions to design for a target capture baitset.
+'''
 
 geneNames = sys.argv[1].split(',')
 regionType = sys.argv[2]
 ensemblVer = '75'
+
 
 class GTFFeature:
     def __init__(self, featureType, chrom, start, end, strand, meta):
@@ -17,12 +29,12 @@ class GTFFeature:
         self.end = int(end)
         self.strand = strand
         self.geneId = meta['gene_id']
-        self.exonId = None # meta['exon_id']
-        self.exonNum = None #meta['exon_number']
-        self.transcriptId = None #meta['transcript_id']
+        self.exonId = None
+        self.exonNum = None
+        self.transcriptId = None
         self.geneName = meta['gene_name']
-        self.transcriptName = None # meta['transcript_name']
-        self.transcriptBioType = None # meta['transcript_biotype']
+        self.transcriptName = None
+        self.transcriptBioType = None
         self.source = meta['gene_source']
         self.geneBioType = meta['gene_biotype']
         self.set_values()
@@ -62,9 +74,9 @@ class Gene:
                 for exonRegion in self.get_transcript_regions(transcript.transcriptId):
                     transcriptRegions.append(exonRegion)
                 tRegionsSorted = sorted(transcriptRegions, key=lambda x: x.start)
-                for i in range(len(tRegionsSorted)-1):
+                for i in range(len(tRegionsSorted) - 1):
                     intronStart = tRegionsSorted[i].end
-                    intronEnd = tRegionsSorted[i+1].start
+                    intronEnd = tRegionsSorted[i + 1].start
                     if tRegionsSorted[i].strand == '-':
                         tRegionsSorted[i].meta['exon_number'] = int(tRegionsSorted[i].meta['exon_number']) - 1
                     gf = GTFFeature("intron", tRegionsSorted[i].chrom, intronStart, intronEnd, tRegionsSorted[i].strand, tRegionsSorted[i].meta)
@@ -124,6 +136,7 @@ class GTF:
             metaD[key] = value
         return metaD
 
+
 def get_feature_regions(gtf, gene, regionType):
     print gene
     regionOverlaps = []
@@ -132,8 +145,8 @@ def get_feature_regions(gtf, gene, regionType):
     for region in regionsSorted:
         # print region.chrom, region.start, region.end, region.geneName, region.transcriptId, region.transcriptBioType, region.geneBioType
         # Skip non-coding transcripts
-    #            if region.transcriptBioType != 'protein_coding':
-    #                continue
+                # if region.transcriptBioType != 'protein_coding':
+                #     continue
         overlap = False
         for regionOverlap in regionOverlaps:
             if region.chrom == regionOverlap[0]:
@@ -153,7 +166,7 @@ def get_feature_regions(gtf, gene, regionType):
 
     regionIter = 1
     for regionOverlap in regionOverlaps:
-#        print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
+        # print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
         for region in regionOverlap[3]:
             print '\t'.join([str(x) for x in [regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
         regionIter += 1
