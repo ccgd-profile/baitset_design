@@ -18,7 +18,9 @@ PARSER.add_argument('-g', '--genes', help='A file containing a list of gene name
 PARSER.add_argument('-o', '--output_dir', dest='outputDir', default='', help='Output directory to store output files. [default: %(default)s]')
 PARSER.add_argument('-v', '--ensembl_ver', dest='ensemblVer', default='75', help='Ensembl annotation version to use. [default: %(default)s]')
 PARSER.add_argument('-f', '--features', dest='features', default='exon,intron', help='Features to target in the gene (exon, intron). [default: %(default)s]')
-PARSER.add_argument('-t', '--transcripts', dest='selectTrxs', default=None, help='List of transcript IDs to identify regions.')
+PARSER.add_argument('-t', '--transcripts', dest='selectTrxs', default=None, help='List of transcript IDs to identify regions. [default: %(default)s]')
+PARSER.add_argument('-u', '--upstream_buffer', dest=, default=0, help='Number of base pairs that should be added upstream the regions of interest. [default: %(default)s]')
+PARSER.add_argument('-d', '--downstream_buffer', dest=0, help='Number of base pairs that should be added downstream the regions of interest. [default: %(default)s]')
 
 pArgs = PARSER.parse_args()
 
@@ -57,11 +59,11 @@ for geneName in inputGenes.keys():
         geneDir = os.path.join(outDir, geneName)
         if not os.path.isdir(geneDir):
             os.mkdir(geneDir)
-        geneOutFn = os.path.join(geneDir, geneName + '_%s' % featureType)
+        geneOutFn = os.path.join(geneDir, geneName + '_%s' % featureType + '.txt')
         geneOutFile = open(geneOutFn, 'w')
         geneGTFFn = os.path.join(geneDir, geneName + "_tmp.gtf")
         print 'Processing', geneName, featureType, 'transcripts', trxList
         cmd = 'zcat %s | grep -w %s > %s' % (gtfFn, geneName, geneGTFFn)
         os.system(cmd)
         gtf = transcript_annotation.GTF(geneGTFFn, ensemblVer, trxList)
-        gtf.get_feature_regions(geneOutFile, geneName, featureType)
+        gtf.get_feature_regions(geneOutFile, geneName, featureType, pArgs)
