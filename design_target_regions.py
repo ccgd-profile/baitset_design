@@ -19,8 +19,8 @@ PARSER.add_argument('-o', '--output_dir', dest='outputDir', default='', help='Ou
 PARSER.add_argument('-v', '--ensembl_ver', dest='ensemblVer', default='75', help='Ensembl annotation version to use. [default: %(default)s]')
 PARSER.add_argument('-f', '--features', dest='features', default='exon,intron', help='Features to target in the gene (exon, intron). [default: %(default)s]')
 PARSER.add_argument('-t', '--transcripts', dest='selectTrxs', default=None, help='List of transcript IDs to identify regions. [default: %(default)s]')
-PARSER.add_argument('-u', '--upstream_buffer', dest=, default=0, help='Number of base pairs that should be added upstream the regions of interest. [default: %(default)s]')
-PARSER.add_argument('-d', '--downstream_buffer', dest=0, help='Number of base pairs that should be added downstream the regions of interest. [default: %(default)s]')
+PARSER.add_argument('-u', '--upstream_buffer', dest='upstreamBuffer', default=0, help='Number of base pairs that should be added upstream the regions of interest. [default: %(default)s]')
+PARSER.add_argument('-d', '--downstream_buffer', dest='downstreamBuffer', default=0, help='Number of base pairs that should be added downstream the regions of interest. [default: %(default)s]')
 
 pArgs = PARSER.parse_args()
 
