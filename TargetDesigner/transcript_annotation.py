@@ -133,17 +133,22 @@ class GTF:
                         # continue
             overlap = False
             for regionOverlap in regionOverlaps:
-                if region.chrom == regionOverlap[0]:
-                    if int(region.start) >= regionOverlap[2] and int(region.start) <= regionOverlap[3]:
+                if region.chrom == regionOverlap['chrom']:
+                    if int(region.start) >= regionOverlap['start'] and int(region.start) <= regionOverlap['end']:
                         overlap = True
-                    elif int(region.end) <= regionOverlap[3] and int(region.end) >= regionOverlap[2]:
+                    elif int(region.end) <= regionOverlap['end'] and int(region.end) >= regionOverlap['start']:
                         overlap = True
                     if overlap:
-                        regionOverlap[3].append(region)
-                        regionOverlap[1] = min(int(region.start), regionOverlap[1])
-                        regionOverlap[2] = max(int(region.end), regionOverlap[2])
+                        regionOverlap['regionList'].append(region)
+                        regionOverlap['start'] = min(int(region.start), regionOverlap['start'])
+                        regionOverlap['end'] = max(int(region.end), regionOverlap['end'])
             if not overlap:
-                regionOverlaps.append([region.geneName, region.chrom, int(region.start), int(region.end), [region]])
+                regionOverlaps.append({'geneName': region.geneName,
+                                       'chrom': region.chrom,
+                                       'start': int(region.start),
+                                       'end': int(region.end),
+                                       'regionList': [region]}
+                                      )
 
         # regionIter = 1
         # for regionOverlap in regionOverlaps:
@@ -153,7 +158,7 @@ class GTF:
         #     regionIter += 1
         regionIter = 1
         for regionOverlap in regionOverlaps:
-            tList = ','.join([x.transcriptId for x in regionOverlap[4]])
-            exonNums = ','.join([str(x.exonNum) for x in regionOverlap[4]])
-            outF.write('\t'.join([str(x) for x in [regionOverlap[0], regionIter, regionOverlap[1], str(regionOverlap[2] - args.upstreamBuffer), str(regionOverlap[3] + args.downstreamBuffer), tList, exonNums]]) + '\n')
+            tList = ','.join([x.transcriptId for x in regionOverlap['regionList']])
+            exonNums = ','.join([str(x.exonNum) for x in regionOverlap['regionList']])
+            outF.write('\t'.join([str(x) for x in [regionOverlap['geneName'], regionIter, regionOverlap['chrom'], str(regionOverlap['start'] - args.upstreamBuffer), str(regionOverlap['end'] + args.downstreamBuffer), tList, exonNums]]) + '\n')
             regionIter += 1
