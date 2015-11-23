@@ -131,7 +131,7 @@ class GTF:
             metaD[key] = value
         return metaD
 
-    def get_feature_regions(self, outF, gene, regionType):
+    def get_feature_regions(self, outF, gene, regionType, args):
         regionOverlaps = []
         regions = self.genes[gene].get_regions(regionType)
         regionsSorted = sorted(regions, key=lambda x: x.start)
@@ -155,17 +155,17 @@ class GTF:
                         regionOverlap[2] = max(int(region.end), regionOverlap[2])
             if not overlap:
                 # print 'No overlap, adding to list'
-                regionOverlaps.append([region.chrom, int(region.start), int(region.end), [region]])
+                regionOverlaps.append([region.geneName, region.chrom, int(region.start), int(region.end), [region]])
 
         regionIter = 1
         for regionOverlap in regionOverlaps:
             # print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
-            for region in regionOverlap[3]:
-                print '\t'.join([str(x) for x in [region.geneName, regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
+            for region in regionOverlap[4]:
+                print '\t'.join([str(x) for x in [regionOverlap[0], regionIter, regionOverlap[1], str(regionOverlap[2]), str(regionOverlap[3]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
             regionIter += 1
         regionIter = 1
         for regionOverlap in regionOverlaps:
-            tList = ','.join([x.transcriptId for x in regionOverlap[3]])
-            exonNums = ','.join([str(x.exonNum) for x in regionOverlap[3]])
-            outF.write('\t'.join([str(x) for x in [regionIter, regionOverlap[0], str(regionOverlap[1]), str(regionOverlap[2]), tList, exonNums]]))
+            tList = ','.join([x.transcriptId for x in regionOverlap[4]])
+            exonNums = ','.join([str(x.exonNum) for x in regionOverlap[4]])
+            outF.write('\t'.join([str(x) for x in [regionOverlap[0], regionIter, regionOverlap[1], str(regionOverlap[2] - args.upstream), str(regionOverlap[3] + args.downstream), tList, exonNums]]) + '\n')
             regionIter += 1
