@@ -108,6 +108,7 @@ class GTF:
         # print metaDict
         gf = GTFFeature(featureType, chrom, start, end, strand, metaDict)
         if featureType == "gene":
+            print 'Adding gene', line
             if gf.geneId not in self.genes:
                 self.genes[gf.geneName] = Gene(gf.geneId, gf)
         else:
@@ -116,9 +117,8 @@ class GTF:
                 if gf.transcriptId not in self.trxList:
                     addFeature = False
             if addFeature:
+                print 'Adding adding transcript element', line
                 self.genes[gf.geneName].add_feature(gf)
-        print line
-        print self.genes
 
     def parse_meta(self, metaValues):
         metaD = {}
