@@ -167,5 +167,5 @@ class GTF:
         for regionOverlap in regionOverlaps:
             tList = ','.join([x.transcriptId for x in regionOverlap[4]])
             exonNums = ','.join([str(x.exonNum) for x in regionOverlap[4]])
-            outF.write('\t'.join([str(x) for x in [regionOverlap[0], regionIter, regionOverlap[1], str(regionOverlap[2] - args.upstream), str(regionOverlap[3] + args.downstream), tList, exonNums]]) + '\n')
+            outF.write('\t'.join([str(x) for x in [regionOverlap[0], regionIter, regionOverlap[1], str(regionOverlap[2] - args.upstreamBuffer), str(regionOverlap[3] + args.downstreamBuffer), tList, exonNums]]) + '\n')
             regionIter += 1
