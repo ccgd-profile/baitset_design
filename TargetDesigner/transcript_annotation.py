@@ -110,7 +110,7 @@ class GTF:
         gf = GTFFeature(featureType, chrom, start, end, strand, metaDict)
         if featureType == "gene":
             print 'Adding gene', line
-            if gf.geneId not in self.genes:
+            if gf.geneName not in self.genes:
                 self.genes[gf.geneName] = Gene(gf.geneId, gf)
         else:
             addFeature = True
