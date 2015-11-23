@@ -39,6 +39,7 @@ class Gene:
         self.features = {}
 
     def add_feature(self, gtfFeature):
+        print 'Adding feature', gtfFeature.geneId, gtfFeature.transcriptId
         if gtfFeature.featureType not in self.features:
             self.features[gtfFeature.featureType] = []
         self.features[gtfFeature.featureType].append(gtfFeature)
@@ -118,6 +119,7 @@ class GTF:
                     addFeature = False
             if addFeature:
                 print 'Adding adding transcript element', line
+                print 'Gene name', gf.geneName
                 self.genes[gf.geneName].add_feature(gf)
 
     def parse_meta(self, metaValues):
