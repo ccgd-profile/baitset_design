@@ -25,6 +25,12 @@ List the available command line parameters.
 python <PATH_TO_DIRECTORY_SCRIPT_IS_LOCATED>/design_target_regions.py -h
 ```
 
+Example to extract exon regions for genes in gene_list.txt using all ensembl 75 transcripts
+for those genes.
+```
+python <PATH_TO_DIRECTORY_SCRIPT_IS_LOCATED>/design_target_regions.py -g gene_list.txt -o $PWD -f exon
+```
+
 Requirements
 ---------
 
