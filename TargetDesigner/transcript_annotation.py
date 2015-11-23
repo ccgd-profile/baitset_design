@@ -39,14 +39,12 @@ class Gene:
         self.features = {}
 
     def add_feature(self, gtfFeature):
-        print 'Adding feature', gtfFeature.geneId, gtfFeature.transcriptId
         if gtfFeature.featureType not in self.features:
             self.features[gtfFeature.featureType] = []
         self.features[gtfFeature.featureType].append(gtfFeature)
 
     def get_regions(self, regionType):
         regions = None
-        print 'Gene.get_regions()', self.features
         if regionType in self.features:
             regions = self.features[regionType]
         elif regionType == 'intron':
@@ -102,14 +100,10 @@ class GTF:
             return
         chrom, source, featureType, start, end, fill1, strand, fill2, meta = linesplit
         metaDict = self.parse_meta(meta)
-        # print self.ensVer == '75'
         if self.ensVer == '75':
             metaDict['transcript_biotype'] = source
-        # print line
-        # print metaDict
         gf = GTFFeature(featureType, chrom, start, end, strand, metaDict)
         if featureType == "gene":
-            print 'Adding gene', line
             if gf.geneName not in self.genes:
                 self.genes[gf.geneName] = Gene(gf.geneId, gf)
         else:
@@ -118,8 +112,6 @@ class GTF:
                 if gf.transcriptId not in self.trxList:
                     addFeature = False
             if addFeature:
-                print 'Adding adding transcript element', line
-                print 'Gene name', gf.geneName
                 self.genes[gf.geneName].add_feature(gf)
 
     def parse_meta(self, metaValues):
@@ -136,33 +128,29 @@ class GTF:
         regions = self.genes[gene].get_regions(regionType)
         regionsSorted = sorted(regions, key=lambda x: x.start)
         for region in regionsSorted:
-            # print region.chrom, region.start, region.end, region.geneName, region.transcriptId, region.transcriptBioType, region.geneBioType
             # Skip non-coding transcripts
                     # if region.transcriptBioType != 'protein_coding':
                         # continue
             overlap = False
             for regionOverlap in regionOverlaps:
                 if region.chrom == regionOverlap[0]:
-                    if int(region.start) >= regionOverlap[1] and int(region.start) <= regionOverlap[2]:
-                        # print region.chrom, region.start, region.end, 'overlaps with stored region', regionOverlap
+                    if int(region.start) >= regionOverlap[2] and int(region.start) <= regionOverlap[3]:
                         overlap = True
-                    elif int(region.end) <= regionOverlap[2] and int(region.end) >= regionOverlap[1]:
-                        # print region.chrom, region.start, region.end, 'overlaps with stored region', regionOverlap
+                    elif int(region.end) <= regionOverlap[3] and int(region.end) >= regionOverlap[2]:
                         overlap = True
                     if overlap:
                         regionOverlap[3].append(region)
                         regionOverlap[1] = min(int(region.start), regionOverlap[1])
                         regionOverlap[2] = max(int(region.end), regionOverlap[2])
             if not overlap:
-                # print 'No overlap, adding to list'
                 regionOverlaps.append([region.geneName, region.chrom, int(region.start), int(region.end), [region]])
 
-        regionIter = 1
-        for regionOverlap in regionOverlaps:
-            # print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
-            for region in regionOverlap[4]:
-                print '\t'.join([str(x) for x in [regionOverlap[0], regionIter, regionOverlap[1], str(regionOverlap[2]), str(regionOverlap[3]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
-            regionIter += 1
+        # regionIter = 1
+        # for regionOverlap in regionOverlaps:
+        #     # print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
+        #     for region in regionOverlap[4]:
+        #         print '\t'.join([str(x) for x in [regionOverlap[0], regionIter, regionOverlap[1], str(regionOverlap[2]), str(regionOverlap[3]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
+        #     regionIter += 1
         regionIter = 1
         for regionOverlap in regionOverlaps:
             tList = ','.join([x.transcriptId for x in regionOverlap[4]])
