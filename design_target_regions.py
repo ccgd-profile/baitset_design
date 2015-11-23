@@ -54,7 +54,7 @@ for featureType in featureTypes:
 # These are hard-coded for use on the Eris cluster. If another system is
 # used, then use the -a, --annotation option to pass in another file.
 gtfFn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/75/primary-assembly/Homo_sapiens.GRCh37.75.gtf.gz'
-if pArgs.annotation is None:
+if pArgs.gtfFn is None:
     if ensemblVer == '82':
         gtfFn = '/data/ccgd/reference/human/gencode/GRCh37-p13/annotation/82/primary-assembly/Homo_sapiens.GRCh37.82.chr.gtf.gz'
     elif ensemblVer == '75':
