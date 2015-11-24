@@ -51,13 +51,13 @@ Parameters
 | Parameter | Description | Default |
 | ---------- | ----------- | ------- |
 | -h, --help | Show the help message and exit | NA |
-| -g --genes | A file containing HUGO gene symbols of interest. The gene name need to match the gene names in the GTF annotation file. | NA (Required parameter) |
-| -o --output_dir | Output directory to store output files. | '.' |
-| -v --ensembl_ver | Ensembl annotation version to use. This assumes user is on the Eris computer cluster and the file paths are hardcoded. Use -a option for user-specified GTF file. | 75 |
-| -f --features | Features to target in the gene (exon, intron). | exon,intron |
-| -u --upstream_buffer | Number of base pairs that should be added upstream the regions of interest. | 0 |
-| -d --downstream_buffer | Number of base pairs that should be added downstream the regions of interest. | 0 |
-| -a --annotation | A gzipped GTF file containing transcript annotations for determining the regions to extract. | None |
+| -g, --genes | A file containing HUGO gene symbols of interest. The gene name need to match the gene names in the GTF annotation file. | NA (Required parameter) |
+| -o, --output_dir | Output directory to store output files. | '.' |
+| -v, --ensembl_ver | Ensembl annotation version to use. This assumes user is on the Eris computer cluster and the file paths are hardcoded. Use -a option for user-specified GTF file. | 75 |
+| -f, --features | Features to target in the gene (exon, intron). | exon,intron |
+| -u, --upstream_buffer | Number of base pairs that should be added upstream the regions of interest. | 0 |
+| -d, --downstream_buffer | Number of base pairs that should be added downstream the regions of interest. | 0 |
+| -a, --annotation | A gzipped GTF file containing transcript annotations for determining the regions to extract. | None |
 
 Output files and formats
 -----------
