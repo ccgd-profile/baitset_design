@@ -3,7 +3,26 @@
 
 
 class GTFFeature:
+    """A class to contain all the elements of a particular transcript or transcript
+    feature. This can be an exon, intron, UTR, or transcript.
+    """
+
     def __init__(self, featureType, chrom, start, end, strand, meta):
+        """Init function to set all the class variables. These values come directly
+        from the GTF file.
+
+        Args:
+            featureType (string):
+            chrom (string):
+            start (int):
+            end (int):
+            strand (string):
+            meta (string):
+
+        Returns:
+            None
+        """
+
         self.meta = meta
         self.featureType = featureType
         self.chrom = chrom.replace('chr', '')
@@ -22,6 +41,12 @@ class GTFFeature:
         self.set_values()
 
     def set_values(self):
+        """A function to parse the meta values from the GTF input values.
+
+        It determines if the record passed in is a gene or not and sets the
+        values accordingly.
+        """
+
         if self.featureType != "gene":
             self.transcriptId = self.meta['transcript_id']
             self.transcriptName = self.meta['transcript_name']
@@ -34,16 +59,38 @@ class GTFFeature:
 
 
 class Gene:
+    """Gene class that contains different categories of features. These are encoded in the
+    GTF file as transcript, exon, UTR.
+
+    The features dictionary contains the featureType as the key and a list of the these
+    GTFFeatures.
+
+    When the exons for a gene are requested it returns the list in self.features['exon'].
+    """
+
     def __init__(self, geneId, gtfFeature):
+        """Initialize the Gene object with a gene ID and a features dictionary.
+
+        Args:
+            geneId (String):         The identifier for the gene as encoded in the GTF file meta field gene_id field.
+            gtfFeature (GTFFeature): 
+        """
+
         self.geneId = geneId
         self.features = {}
 
     def add_feature(self, gtfFeature):
+        """
+        """
+
         if gtfFeature.featureType not in self.features:
             self.features[gtfFeature.featureType] = []
         self.features[gtfFeature.featureType].append(gtfFeature)
 
     def get_regions(self, regionType):
+        """
+        """
+
         regions = None
         if regionType in self.features:
             regions = self.features[regionType]
@@ -51,6 +98,7 @@ class Gene:
             regions = []
             for transcript in self.features['transcript']:
                 transcriptRegions = []
+                # Skip non-protein encoding transcripts.
                 if transcript.transcriptBioType != 'protein_coding':
                     continue
                 for exonRegion in self.get_transcript_regions(transcript.transcriptId):
@@ -68,9 +116,16 @@ class Gene:
         return regions
 
     def get_transcripts(self):
+        """Return all the transcripts for a gene. These will be coded as 
+        GTFFeature objects.
+        """
+
         return self.features['transcript']
 
     def get_transcript_regions(self, transcriptId):
+        """Return exons (GTFFeature objects) for a specific transcript.
+        """
+
         regions = self.get_regions('exon')
         transcriptRegions = []
         for region in regions:
@@ -80,7 +135,21 @@ class Gene:
 
 
 class GTF:
+    """A class to organize the elements in the GTF file input.
+    It organizes the annotation in the hierarchy that the GTF file contains.
+
+    Gene:
+        - features (exon, intron, transcript)
+            - feature elements (ID, number, coordinates)
+    """
+
     def __init__(self, fn, ensemblVer, trxList):
+        """Instantiate the GTF object with the GTF filename, the Ensembl version
+        and the transcript list.
+
+        Parse the GTF file into gene objects and store all the gene features.
+        """
+
         self.fn = fn
         self.ensVer = ensemblVer
         self.genes = {}
@@ -88,6 +157,9 @@ class GTF:
         self.parse()
 
     def parse(self):
+        """
+        """
+
         for line in open(self.fn):
             line = line.strip()
             if line.find('#!') > -1:
@@ -95,6 +167,14 @@ class GTF:
             self.process_line(line)
 
     def process_line(self, line):
+        """
+
+        Args:
+            line ():
+        Returns:
+            None
+        """
+
         linesplit = line.split('\t')
         if linesplit[0].find('PATCH') > -1:
             return
@@ -115,6 +195,9 @@ class GTF:
                 self.genes[gf.geneName].add_feature(gf)
 
     def parse_meta(self, metaValues):
+        """
+        """
+
         metaD = {}
         for value in metaValues.split('; '):
             # print value
@@ -124,13 +207,21 @@ class GTF:
         return metaD
 
     def get_feature_regions(self, outF, gene, regionType, args):
+        """
+
+        Args:
+            outF ():
+            gene ():
+            regionType ():
+            args ():
+
+        Returns:
+        """
+
         regionOverlaps = []
         regions = self.genes[gene].get_regions(regionType)
         regionsSorted = sorted(regions, key=lambda x: x.start)
         for region in regionsSorted:
-            # Skip non-coding transcripts
-                    # if region.transcriptBioType != 'protein_coding':
-                        # continue
             overlap = False
             for regionOverlap in regionOverlaps:
                 if region.chrom == regionOverlap['chrom']:
@@ -150,12 +241,6 @@ class GTF:
                                        'regionList': [region]}
                                       )
 
-        # regionIter = 1
-        # for regionOverlap in regionOverlaps:
-        #     # print regionIter, regionOverlap[0], str(regionOverlap[1]) + "-" + str(regionOverlap[2])
-        #     for region in regionOverlap[4]:
-        #         print '\t'.join([str(x) for x in [regionOverlap[0], regionIter, regionOverlap[1], str(regionOverlap[2]), str(regionOverlap[3]), region.chrom, region.start, region.end, region.transcriptId, region.exonNum]])
-        #     regionIter += 1
         regionIter = 1
         for regionOverlap in regionOverlaps:
             tList = ','.join([x.transcriptId for x in regionOverlap['regionList']])

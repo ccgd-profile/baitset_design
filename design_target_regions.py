@@ -17,7 +17,6 @@ PARSER.add_argument('-g', '--genes', help='A file containing a list of gene name
 PARSER.add_argument('-o', '--output_dir', dest='outputDir', default='', help='Output directory to store output files. [default: %(default)s]')
 PARSER.add_argument('-v', '--ensembl_ver', dest='ensemblVer', default='75', help='Ensembl annotation version to use. [default: %(default)s]')
 PARSER.add_argument('-f', '--features', dest='features', default='exon,intron', help='Features to target in the gene (exon, intron). [default: %(default)s]')
-PARSER.add_argument('-t', '--transcripts', dest='selectTrxs', default=None, help='List of transcript IDs to identify regions. [default: %(default)s]')
 PARSER.add_argument('-u', '--upstream_buffer', dest='upstreamBuffer', default=0, type=int, help='Number of base pairs that should be added upstream the regions of interest. [default: %(default)s]')
 PARSER.add_argument('-d', '--downstream_buffer', dest='downstreamBuffer', default=0, type=int, help='Number of base pairs that should be added downstream the regions of interest. [default: %(default)s]')
 PARSER.add_argument('-a', '--annotation', dest='gtfFn', default=None, help='A gzipped GTF file containing transcript annotations for determining the regions to extract.')
@@ -64,16 +63,26 @@ else:
 
 print len(inputGenes.keys()), "genes in input list"
 
+# Iterate over the input genes
 for geneName in inputGenes.keys():
     trxList = inputGenes[geneName]
+    # Extract and write files for each featureType
+    # Introns and exons are written separately and will need to be merged if
+    # so desired.
     for featureType in featureTypes:
         geneDir = os.path.join(outDir, geneName)
+        # Create a directory with the gene name and store all output files
+        # in this directory.
         if not os.path.isdir(geneDir):
             os.mkdir(geneDir)
+        # Create an output file.
         geneOutFn = os.path.join(geneDir, geneName + '_%s' % featureType + '.txt')
         geneOutFile = open(geneOutFn, 'w')
+        # Extract the gene specific annotations from the gtf file.
         geneGTFFn = os.path.join(geneDir, geneName + "_tmp.gtf")
         cmd = 'zcat %s | grep -w %s > %s' % (gtfFn, geneName, geneGTFFn)
         os.system(cmd)
+        # Store all the annotation features in the data structures.
         gtf = transcript_annotation.GTF(geneGTFFn, ensemblVer, trxList)
+        # Extract intron or exon regions and write to output file.
         gtf.get_feature_regions(geneOutFile, geneName, featureType, pArgs)
