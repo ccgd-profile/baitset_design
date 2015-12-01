@@ -45,7 +45,7 @@ featureTypes = pArgs.features.split(',')
 # Check to make sure the featureType is exon or intron, otherwise
 # exit with error message.
 for featureType in featureTypes:
-    if featureType not in ['exon', 'intron']:
+    if featureType not in ['exon', 'intron', 'CDS']:
         print 'An unsupported feature type was used, %s, exiting.' % featureType
         sys.exit(1)
 
